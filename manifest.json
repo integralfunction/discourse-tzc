@@ -1,0 +1,40 @@
+{
+  "manifest_version": 2,
+  "name": "discourse-tzc",
+  "description": "Discourse timezone converter",
+  "summary": "this is a discourse timezone converter",
+  "version": "0.0.1",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{8480816d-57f0-4564-a7b4-627e154a874a}",
+      "strict_min_version": "58.0"
+    }
+  },
+  "icons": {
+    "64": "icons/icon.png"
+  },
+  "background": {
+    "scripts": ["background_script.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.discourse.group/chat/c/*"],
+      "run_at": "document_end",
+      "js": ["lib/luxon.min.js", "content_script.js"]
+    }
+  ],
+  "browser_action": {
+    "default_icon": {
+      "64": "icons/icon.png"
+    },
+    "default_popup": "browserAction/index.html",
+    "default_title": "discourse-tzc"
+  },
+  "page_action": {
+    "default_icon": {
+      "64": "icons/icon.png"
+    },
+    "default_popup": "pageAction/index.html",
+    "default_title": "discourse-tzc"
+  }
+}
