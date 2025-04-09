@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "discourse-tzc",
   "description": "Discourse timezone converter",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "browser_specific_settings": {
     "gecko": {
       "id": "{8480816d-57f0-4564-a7b4-627e154a874a}",
