@@ -1,11 +1,10 @@
 let DateTime = luxon.DateTime;
+// console.log("runs");
 
-// MutationRecord[], bool for <a> req
+// mutations: MutationRecord[]
 const filterMutationRecords = (mutations) => {
   let elements = [];
   mutations.forEach(function (mutationRecord) {
-    // console.log("MUTATIONRECORD: ");
-    // console.log(mutationRecord);
     let contents = mutationRecord.addedNodes;
     // check if item is actual HTML element first
     let validElement =
@@ -13,9 +12,11 @@ const filterMutationRecords = (mutations) => {
     if (validElement) {
       // now check if element has a chat-time container for the time
       let timeTags = contents[0].getElementsByClassName("chat-time");
-      if (timeTags.length == 1) {
+      if (timeTags.length === 1) {
         // TODO: why mutations get called many times ?
         if (!elements.includes(timeTags[0])) {
+          // console.log("THIS element gets added:");
+          // console.log(timeTags[0]);
           elements.push(timeTags[0]);
         }
       }
@@ -24,37 +25,60 @@ const filterMutationRecords = (mutations) => {
   return elements;
 };
 
-// mutations: An array of MutationRecord objects
+const config = {
+  childList: true,
+  subtree: true,
+};
+
+// the format that discourse uses for full dates, except military time instead
+// Example: Apr 8, 2025 13:03
+const format = {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: false,
+};
+
+const changeSingleElement = (tag) => {
+  // make a luxon object
+  let date = DateTime.fromFormat(tag.title, "DD t");
+  // convert into military
+  let convertedTime = date.toLocaleString(DateTime.TIME_24_SIMPLE);
+  // modify tag
+  tag.title = date.toLocaleString(format);
+  tag.textContent = convertedTime;
+  return tag;
+};
+
+// TODO; inefficient
+function convertLatestMessageTime() {
+  let timeTags = document.body.getElementsByClassName("chat-time");
+  let indx = timeTags.length - 1;
+  let latestMessage = timeTags.item(indx);
+  changeSingleElement(latestMessage);
+  console.log("converted!");
+}
+
+// mutations: MutationRecord[]
 const observer = new MutationObserver(function (mutations) {
   let filtered = filterMutationRecords(mutations);
   if (filtered.length === 0) {
     return;
   }
-  // console.log("FILTERED MUTATIONS:");
-  // console.log(filtered);
   filtered.forEach(function (tag) {
-    // console.log(tag.innerText);
-    // change the time into a DateTime object
-    if (tag.innerText.length > 5) {
-      let time = DateTime.fromFormat(tag.innerText.toUpperCase(), "t");
-      // convert into military
-      // console.log(time.toLocaleString(DateTime.TIME_24_SIMPLE));
-      tag.innerText = time.toLocaleString(DateTime.TIME_24_SIMPLE);
+    changeSingleElement(tag);
+    if (tag.nodeName === "SPAN") {
+      // TODO
+      setTimeout(convertLatestMessageTime, 2000);
     }
   });
 });
-
-const config = {
-  childList: true,
-  subtree: true,
-};
 
 function main() {
   let all = document.body;
   observer.observe(all, config);
 }
 
-// TODO: fix this awfulness (what if chat takes more than 1s to load?)
-setTimeout(main, 1000);
-
-// console.log("runs");
+main();

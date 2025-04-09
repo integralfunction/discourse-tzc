@@ -17,7 +17,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*.discourse.group/chat/c/*"],
+      "matches": ["*://*.discourse.group/*"],
       "run_at": "document_end",
       "js": ["lib/luxon.min.js", "content_script.js"]
     }
