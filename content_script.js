@@ -53,13 +53,24 @@ const changeSingleElement = (tag) => {
 };
 
 // TODO; inefficient
-function convertLatestMessageTime() {
+const convertLatestMessageTime = async () => {
   let timeTags = document.body.getElementsByClassName("chat-time");
   let indx = timeTags.length - 1;
   let latestMessage = timeTags.item(indx);
+  let keepLooping = true;
+  while (keepLooping) {
+    timeTags = document.body.getElementsByClassName("chat-time");
+    indx = timeTags.length - 1;
+    latestMessage = timeTags.item(indx);
+    console.log(latestMessage);
+    if (latestMessage.nodeName === "A") {
+      keepLooping = false;
+    }
+    await new Promise((r) => setTimeout(r, 100)); // 0.1s delay
+  }
   changeSingleElement(latestMessage);
   console.log("converted!");
-}
+};
 
 // mutations: MutationRecord[]
 const observer = new MutationObserver(function (mutations) {
@@ -70,15 +81,10 @@ const observer = new MutationObserver(function (mutations) {
   filtered.forEach(function (tag) {
     changeSingleElement(tag);
     if (tag.nodeName === "SPAN") {
-      // TODO
-      setTimeout(convertLatestMessageTime, 2000);
+      convertLatestMessageTime();
     }
   });
 });
 
-function main() {
-  let all = document.body;
-  observer.observe(all, config);
-}
-
-main();
+let all = document.body;
+observer.observe(all, config);
